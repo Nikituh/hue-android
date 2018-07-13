@@ -30,5 +30,5 @@ dependencies {
     implementation 'com.github.kittinunf.fuel:fuel:1.9.0' //for JVM
     implementation 'com.github.kittinunf.fuel:fuel-android:1.4.0'
     implementation 'com.github.kittinunf.fuel:fuel-gson:1.9.0' //for Gson support
-
+    implementation 'com.github.madrapps:pikolo:1.1.6'
 }
