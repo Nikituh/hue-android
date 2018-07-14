@@ -3,46 +3,56 @@ package com.nikitech.hue
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.SeekBar
 import com.madrapps.pikolo.listeners.SimpleColorSelectionListener
+import com.nikitech.hue.model.HueColor
 import com.nikitech.hue.networking.Networking
+import org.jetbrains.anko.sdk25.coroutines.onCheckedChange
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
-    var contentView: MainView? = null
+    private var contentView: MainView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         contentView = MainView(this)
         setContentView(contentView)
-
-//        Networking.INSTANCE.getBridgeIP()
     }
 
     override fun onResume() {
         super.onResume()
 
-        contentView!!.picker.setColorSelectionListener(object : SimpleColorSelectionListener() {
-            override fun onColorSelected(color: Int) {
+        contentView!!.hue.bar.setOnSeekBarChangeListener(this)
+        contentView!!.saturation.bar.setOnSeekBarChangeListener(this)
+        contentView!!.brightness.bar.setOnSeekBarChangeListener(this)
 
-//                val hexColor = String.format("#%06X", 0xFFFFFF and color)
-//                println("Selected: $hexColor")
-                val red = Color.red(color)
-                val green = Color.green(color)
-                val blue = Color.blue(color)
-
-                val array = floatArrayOf(0f, 0f, 0f)
-                val asdf = Color.colorToHSV(color, array)
-
-//                val hue = getHue(red, green, blue)
-                Networking.INSTANCE.update(array[0].toInt())
+        contentView!!.switch.onCheckedChange { _, _ ->
+            run {
+                Networking.INSTANCE.update(contentView!!.getColor())
             }
-        })
+        }
     }
 
     override fun onPause() {
         super.onPause()
+
+        contentView!!.hue.bar.setOnSeekBarChangeListener(null)
+        contentView!!.saturation.bar.setOnSeekBarChangeListener(null)
+        contentView!!.brightness.bar.setOnSeekBarChangeListener(null)
+    }
+
+    override fun onStopTrackingTouch(p0: SeekBar?) {
+        Networking.INSTANCE.update(contentView!!.getColor())
+    }
+
+    override fun onStartTrackingTouch(p0: SeekBar?) {
+        // Do nothing
+    }
+
+    override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+        // Do nothing
     }
 
     fun getHue(red: Int, green: Int, blue: Int): Int {
