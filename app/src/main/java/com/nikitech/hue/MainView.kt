@@ -5,7 +5,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import com.nikitech.hue.base.BaseView
 import com.nikitech.hue.base.setFrame
-import com.nikitech.hue.model.HueColor
+import com.nikitech.hue.model.LampData
 import com.nikitech.hue.subviews.SeekBarWithTitle
 import org.jetbrains.anko.imageResource
 
@@ -77,12 +77,22 @@ class MainView(context: Context) : BaseView(context) {
         brightness.setFrame(x, y, w, h)
     }
 
-    fun getColor(): HueColor {
-        return HueColor(
+    fun getBarData(): LampData {
+        return LampData(
                 hue.bar.progress,
                 saturation.bar.progress,
                 brightness.bar.progress,
                 switch.isChecked
+        )
+    }
+
+    fun getDataWithCustomHue(hue: Int, lampNumber: Int): LampData {
+        return LampData(
+                hue,
+                saturation.bar.progress,
+                brightness.bar.progress,
+                switch.isChecked,
+                lampNumber
         )
     }
 }

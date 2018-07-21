@@ -6,7 +6,7 @@ import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.result.Result
-import com.nikitech.hue.model.HueColor
+import com.nikitech.hue.model.LampData
 import java.net.URL
 import java.util.*
 
@@ -32,13 +32,17 @@ class Networking {
         return ""
     }
 
-    private val queue = PriorityQueue<HueColor>()
+    private val queue = PriorityQueue<LampData>()
 
     private val ip = "http://192.168.1.143/"
     private val user = "2axlCppakzSFddi19q86ixCt0WiFODG6GaQ-ST1r"
     private val groupUrl = "/groups/0/action"
+    private val lightsUrl = "/lights/"
+    private val state = "/state"
 
-    fun update(data: HueColor) {
+    private val urlBase = ip + "api/" + user
+
+    fun update(data: LampData) {
 
         if (!queue.isEmpty()) {
             queue.add(data)
@@ -48,10 +52,15 @@ class Networking {
         sendData(data)
     }
 
-    private fun sendData(data: HueColor) {
+    private fun sendData(data: LampData) {
         val request = Request()
         request.httpMethod = Method.PUT
-        request.url = URL( ip + "api/" + user + groupUrl)
+
+        if (data.isGroupCommand()) {
+            request.url = URL(urlBase + groupUrl)
+        } else {
+            request.url = URL(urlBase + lightsUrl + data.lampNumber + state)
+        }
 
         val body = "{" +
                 "\"hue\": ${data.hue}, " +

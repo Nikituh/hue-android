@@ -1,17 +1,13 @@
 package com.nikitech.hue
 
-import android.graphics.Color
+import android.net.Network
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.widget.SeekBar
-import com.madrapps.pikolo.listeners.SimpleColorSelectionListener
 import com.nikitech.hue.model.ColorCalculator
-import com.nikitech.hue.model.HueColor
 import com.nikitech.hue.networking.Networking
 import org.jetbrains.anko.sdk25.coroutines.onCheckedChange
-import java.util.*
-import kotlin.concurrent.schedule
 
 
 class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
@@ -34,7 +30,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         contentView!!.switch.onCheckedChange { _, _ ->
             run {
-                Networking.INSTANCE.update(contentView!!.getColor())
+                Networking.INSTANCE.update(contentView!!.getBarData())
             }
         }
 
@@ -42,8 +38,15 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         val timer = object : CountDownTimer(1000 * 60, 500) {
             override fun onTick(millisUntilFinished: Long) {
-                println("Lamp: " + calculator.getLamp())
-                println("Color: " + calculator.getColor())
+
+                val color = calculator.getColor()
+                val number = calculator.getLamp()
+
+                println("Color: " + color)
+                println("Lamp: " + number)
+
+                val data = contentView!!.getDataWithCustomHue(color, number)
+                Networking.INSTANCE.update(data)
             }
             override fun onFinish() {
             }
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     }
 
     override fun onStopTrackingTouch(p0: SeekBar?) {
-        Networking.INSTANCE.update(contentView!!.getColor())
+        Networking.INSTANCE.update(contentView!!.getBarData())
     }
 
     override fun onStartTrackingTouch(p0: SeekBar?) {
