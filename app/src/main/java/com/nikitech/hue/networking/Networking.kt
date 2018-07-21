@@ -53,7 +53,13 @@ class Networking {
         request.httpMethod = Method.PUT
         request.url = URL( ip + "api/" + user + groupUrl)
 
-        val body = "{\"hue\":${data.hue}, \"sat\": ${data.saturation}, \"bri\":${data.brightness}}"
+        val body = "{" +
+                "\"hue\": ${data.hue}, " +
+                "\"sat\": ${data.saturation}, " +
+                "\"bri\": ${data.brightness}, " +
+                "\"on\" : ${data.isChecked}" +
+                "}"
+
         request.body(body)
 
         Fuel.request(request).responseJson {_, _, result ->
