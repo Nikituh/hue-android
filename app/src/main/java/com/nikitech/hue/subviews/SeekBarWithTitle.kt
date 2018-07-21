@@ -2,6 +2,7 @@ package com.nikitech.hue.subviews
 
 import android.content.Context
 import android.os.Build
+import android.widget.RelativeLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import com.nikitech.hue.base.BaseView
@@ -38,5 +39,9 @@ class SeekBarWithTitle(context: Context, title: String, min: Int, max: Int) : Ba
         h = usableHeight / 3 * 2
 
         bar.setFrame(x, y, w, h)
+    }
+
+    fun getInnerPadding(): Int {
+        return (bar.layoutParams as RelativeLayout.LayoutParams).leftMargin
     }
 }

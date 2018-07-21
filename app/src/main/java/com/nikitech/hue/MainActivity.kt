@@ -3,11 +3,15 @@ package com.nikitech.hue
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.widget.SeekBar
 import com.madrapps.pikolo.listeners.SimpleColorSelectionListener
+import com.nikitech.hue.model.ColorCalculator
 import com.nikitech.hue.model.HueColor
 import com.nikitech.hue.networking.Networking
 import org.jetbrains.anko.sdk25.coroutines.onCheckedChange
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
@@ -33,6 +37,19 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                 Networking.INSTANCE.update(contentView!!.getColor())
             }
         }
+
+        val calculator = ColorCalculator()
+
+        val timer = object : CountDownTimer(1000 * 60, 500) {
+            override fun onTick(millisUntilFinished: Long) {
+                println("Lamp: " + calculator.getLamp())
+                println("Color: " + calculator.getColor())
+            }
+            override fun onFinish() {
+            }
+        }
+
+        timer.start()
     }
 
     override fun onPause() {
