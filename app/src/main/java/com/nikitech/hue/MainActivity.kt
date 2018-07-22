@@ -1,6 +1,5 @@
 package com.nikitech.hue
 
-import android.net.Network
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -28,31 +27,21 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         contentView!!.saturation.bar.setOnSeekBarChangeListener(this)
         contentView!!.brightness.bar.setOnSeekBarChangeListener(this)
 
-        contentView!!.switch.onCheckedChange { _, _ ->
+        contentView!!.onOff.switch.onCheckedChange { _, _ ->
             run {
                 Networking.INSTANCE.update(contentView!!.getBarData())
             }
         }
 
-        val calculator = ColorCalculator()
-
-        val timer = object : CountDownTimer(1000 * 60, 500) {
-            override fun onTick(millisUntilFinished: Long) {
-
-                val color = calculator.getColor()
-                val number = calculator.getLamp()
-
-                println("Color: " + color)
-                println("Lamp: " + number)
-
-                val data = contentView!!.getDataWithCustomHue(color, number)
-                Networking.INSTANCE.update(data)
-            }
-            override fun onFinish() {
+        contentView!!.strobe.switch.onCheckedChange { buttonView, isChecked ->
+            run {
+                if (isChecked) {
+                    startStrobe()
+                } else {
+                    normalize()
+                }
             }
         }
-
-        timer.start()
     }
 
     override fun onPause() {
@@ -63,6 +52,36 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         contentView!!.brightness.bar.setOnSeekBarChangeListener(null)
     }
 
+    private fun startStrobe() {
+        val calculator = ColorCalculator()
+
+        val timer = object : CountDownTimer(1000 * 60, 500) {
+            override fun onTick(millisUntilFinished: Long) {
+
+                val color = calculator.getColor()
+                val number = calculator.getLamp()
+
+                val data = contentView!!.getDataWithCustomHue(color, number)
+                Networking.INSTANCE.update(data)
+            }
+            override fun onFinish() {
+                normalize()
+            }
+        }
+
+        timer.start()
+    }
+
+    private fun normalize() {
+        Networking.INSTANCE.update(contentView!!.getBarData())
+        runOnUiThread {
+            contentView!!.strobe.switch.isChecked = false
+        }
+    }
+
+    /**
+     * SeekBar.OnSeekBarChangeListener implementation
+     */
     override fun onStopTrackingTouch(p0: SeekBar?) {
         Networking.INSTANCE.update(contentView!!.getBarData())
     }
@@ -73,32 +92,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
     override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
         // Do nothing
-    }
-
-    fun getHue(red: Int, green: Int, blue: Int): Int {
-
-        val min = Math.min(Math.min(red, green), blue)
-        val max = Math.max(Math.max(red, green), blue)
-
-        if (min == max) {
-            return 0
-        }
-
-        var hue = 0
-        hue = if (max == red) {
-            (green - blue) / (max - min);
-
-        } else if (max == green) {
-            2 + (blue - red) / (max - min);
-
-        } else {
-            4 + (red - green) / (max - min);
-        }
-
-        hue *= 60
-        if (hue < 0) hue += 360
-
-        return hue
     }
 
 }
