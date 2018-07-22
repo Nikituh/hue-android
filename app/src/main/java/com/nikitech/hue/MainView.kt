@@ -2,6 +2,7 @@ package com.nikitech.hue
 
 import android.content.Context
 import android.widget.ImageView
+import com.nikitech.hue.base.BaseScrollView
 import com.nikitech.hue.base.BaseView
 import com.nikitech.hue.base.setFrame
 import com.nikitech.hue.model.LampData
@@ -9,7 +10,7 @@ import com.nikitech.hue.subviews.SeekBarWithTitle
 import com.nikitech.hue.subviews.SwitchWithTitle
 import org.jetbrains.anko.imageResource
 
-class MainView(context: Context) : BaseView(context) {
+class MainView(context: Context) : BaseScrollView(context) {
 
     val onOff = SwitchWithTitle(context, "ON/OFF")
     val strobe = SwitchWithTitle(context, "STROBE")
@@ -38,7 +39,7 @@ class MainView(context: Context) : BaseView(context) {
         saturation.bar.progress = 255
         brightness.bar.progress = 150
 
-        setMainViewFrame()
+        matchParent()
     }
 
     override fun layoutSubviews() {
